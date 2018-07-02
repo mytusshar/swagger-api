@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>PulseID</title>
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="modal.css">
+        <script src="index.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    </head>
+
+    <body>            
+        <div class="logo">PulseID</div>
+
+        <div class="block" id="user-login">
+            <h1>User Login</h1>
+            <input class="input" id="input-token" placeholder="Enter invitation token">
+            <span id="error-input" class="error">error</span>
+            <button class="button" id="button-userLogin">Login with Invitation Token</button>
+            <button class="button" id="button-displayAdmin">Admin? Click here to Login</button>
+        </div>
+
+        <div class="block" id="admin-login">
+            <h1>Admin Login</h1>
+            <input class="input" id="input-name" placeholder="username">
+            <span id="error-name" class="error">error</span>
+            <input class="input" id="input-password" placeholder="password">
+            <span id="error-password" class="error">error</span>
+            <button class="button" id="button-adminLogin">Login as Admin</button>
+            <button class="button" id="button-displayUser">Click here to Login with invitation token</button>
+        </div>
+
+        <!-- <div id="result-block">
+            <p id="result-string">result</p>
+        </div> -->
+
+        <!-- alert modal -->
+        <div id="modal-container">
+            <div class="flex">
+                <div id="modal">
+                    <div id="close">
+                        <span>&#43;</span>
+                    </div>
+                    <div class="content">
+                        <h2 id="alert-refresh">Alert</h2>
+                        <p id="alert-text"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>

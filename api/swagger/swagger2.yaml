@@ -1,0 +1,339 @@
+---
+swagger: "2.0"
+info:
+  description: Self Service Mobile Application API
+  version: "1.0"
+  title: Pulse iD - Self Service Mobile Application API
+  contact: {}
+host: localhost:3000
+basePath: /prospects
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /invite/validate:
+    x-swagger-router-controller: main-controller
+    post:
+      operationId: validateInviteToken
+      summary: Validates an invite
+      description: Invites can expire or can be maliciously created. This endpoint helps with validating the real ones.
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/body'
+      responses:
+        200:
+          description: Invite is valid
+          schema:
+            $ref: '#/definitions/SDKInitData'
+        400:
+          description: Invalid invite provided
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+        401:
+          description: Invite Expired
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+        404:
+          description: Invite Not Found
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+  /invite/generate:
+    x-swagger-router-controller: main-controller
+    post:
+      operationId: createTokenAdmin
+      summary: Generates a new invite
+      description: This endpoint will generate an invite and store it in the DB
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/GenerateInviteRequest'
+      responses:
+        200:
+          description: Invite generated
+          schema:
+            $ref: '#/definitions/InviteResponse'
+        400:
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+        403:
+          description: Invalid JWT Token
+        500:
+          description: Failed to generate invite
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+      security:
+      - Bearer: []
+      x-security-scopes:
+      - admin
+  /invite/disable:
+    x-swagger-router-controller: main-controller
+    post:
+      operationId: invalidateInviteToken
+      summary: disable an invite
+      description: IThis endpoint helps with disabling the real ones.
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/body'
+      responses:
+        200:
+          description: Disabled invite
+          schema:
+            $ref: '#/definitions/DisableResponse'
+        400:
+          description: Invalid invite provided
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+        401:
+          description: Invite Expired
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+        404:
+          description: Invite Not Found
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+      security:
+      - Bearer: []
+      x-security-scopes:
+      - admin
+  /login/{role}:
+    x-swagger-router-controller: main-controller
+    post:
+      operationId: loginPost
+      summary: login endpoint for admin
+      description: Login with a particular role 'admin'
+      parameters:
+      - name: role
+        in: path
+        required: true
+        type: string
+      - in: body
+        name: authentication
+        required: true
+        schema:
+          $ref: '#/definitions/LoginAuthentication'
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/JWTToken'
+        403:
+          description: Access Denied
+          schema:
+            $ref: '#/definitions/LoginError'
+  /invite/getall:
+    x-swagger-router-controller: main-controller
+    get:
+      operationId: getAllTokensAdmin
+      summary: get all tokens
+      description: return all tokens, Protected endpoint, only accessible to 'admins'
+      parameters: []
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/GetAllResource'
+        403:
+          description: Access Denied
+          schema:
+            $ref: '#/definitions/ApiErrorResponse'
+      security:
+      - Bearer: []
+      x-security-scopes:
+      - admin
+securityDefinitions:
+  Bearer:
+    description: Valid JWT token is required for this endpoint
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  GenerateInviteRequest:
+    type: object
+    required:
+    - appKey
+    - appUrl
+    - clientId
+    - userId
+    properties:
+      userId:
+        type: string
+        example: aleks@pulseid.com
+        description: The user id that requested the invite to be generated
+      clientId:
+        type: integer
+        example: 50
+        description: The client id for which this invite is generated
+      appKey:
+        type: string
+        example: 4d4f434841-373836313836303830-3430-616e64726f6964
+        description: App key used by the SDK
+      appUrl:
+        type: string
+        example: https://test.pulseid.com/2.1
+        description: Environment url used by the SDK
+    example:
+      clientId: 50
+      appKey: 4d4f434841-373836313836303830-3430-616e64726f6964
+      appUrl: https://test.pulseid.com/2.1
+      userId: aleks@pulseid.com
+  LoginAuthentication:
+    type: object
+    properties:
+      username:
+        type: string
+        example: admin
+        description: username for login
+      password:
+        type: string
+        example: admin
+        description: passowrd for login
+  LoginError:
+    type: object
+    properties:
+      message:
+        type: string
+        example: error during login
+        description: error during login
+  GetAllResource:
+    type: object
+    properties:
+      inviteTokens:
+        type: string
+        example: jndadnqoeu98-393n23rkj23n2ornf0nfff39i-hbjhb, Jul 8, 2018 12:30 GMT+530
+        description: all invite tokens from system inactive and active
+    example:
+      inviteTokens: jndadnqoeu98-393n23rkj23n2ornf0nfff39i-hbjhb, Jul 8, 2018 12:30 GMT+530
+  JWTToken:
+    type: object
+    properties:
+      token:
+        type: string
+        example: jndadnqoeu98-393n23rkj23n2ornf0nfff39i-hbjhb
+        description: JWT token on successfull login to admin
+    example:
+      token: jndadnqoeu98-393n23rkj23n2ornf0nfff39i-hbjhb
+  InviteResponse:
+    type: object
+    required:
+    - inviteToken
+    - validTo
+    properties:
+      inviteToken:
+        type: string
+        example: 4d4f434841
+        description: Invite key used by clients to login to the prospects app
+      validTo:
+        type: string
+        example: 12/12/2018 23:15:10
+        description: Timestamp till this invite is valid
+    example:
+      inviteToken: 4d4f434841
+      validTo: 12/12/2018 23:15:10
+  DisableResponse:
+    type: object
+    required:
+    - message
+    properties:
+      message:
+        type: string
+        example: Successfully disabled
+        description: Message stating the response
+    example:
+      message: Successfully disabled
+  SDKInitData:
+    type: object
+    required:
+    - appKey
+    - appUrl
+    properties:
+      appKey:
+        type: string
+        example: 4d4f434841-373836313836303830-3430-616e64726f6964
+        description: App key used by the SDK
+      appUrl:
+        type: string
+        example: https://test.pulseid.com/2.1
+        description: Environment url used by the SDK
+    example:
+      appKey: 4d4f434841-373836313836303830-3430-616e64726f6964
+      appUrl: https://test.pulseid.com/2.1
+  ApiErrorResponse:
+    type: object
+    properties:
+      error_code:
+        type: number
+        example: -101.0
+        description: Error code useful for debugging
+      error_message:
+        type: string
+        example: Failed to load data
+        description: Error message
+      trace_id:
+        type: string
+        example: b30d919c-6491-491e-a5e4-6222ef0b32e4
+        description: Randomly generated ID for this request, used for support and debugging
+  Geofence:
+    type: object
+    required:
+    - latitude
+    - locationName
+    - longitude
+    - radius
+    properties:
+      latitude:
+        type: number
+        example: -37.819949466374
+        description: Latitude of geofence
+      longitude:
+        type: number
+        example: 144.90083277444
+        description: Longitude of geofence
+      radius:
+        type: number
+        example: 100.0
+        description: Radius in meters for geofence
+      locationName:
+        type: string
+        example: Bank of America
+        description: The name of the location
+  body:
+    type: object
+    required:
+    - inviteToken
+    properties:
+      inviteToken:
+        type: string
+        example: d4f434
+        description: An app invite token

@@ -1,0 +1,187 @@
+---
+swagger: "2.0"
+info:
+  description: "Self Service Mobile Application API"
+  version: "1.0"
+  title: "Pulse iD - Self Service Mobile Application API"
+  contact: {}
+host: "test.pulseid.com"
+basePath: "/prospects"
+schemes: 
+  - "https"
+consumes: 
+  - "application/json"
+produces: 
+  - "application/json"
+paths:
+  /invite/validate:
+    post:
+      summary: "Validates an invite"
+      description: "Invites can expire or can be maliciously created. This endpoint helps with validating the real ones."
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        required: true
+        schema:
+          type: "object"
+          required:
+          - "inviteToken"
+          properties:
+            inviteToken:
+              type: "string"
+              description: "An app invite token"
+              example: "d4f434"
+      responses:
+        200:
+          description: "Invite is valid"
+          schema: 
+            $ref: "#/definitions/SDKInitData"
+        400:
+          description: "Invalid invite provided"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        401:
+          description: "Invite Expired"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        404:
+          description: "Invite Not Found"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        500:
+          description: "Internal Server Error"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+  /invite/generate:
+    post:
+      summary: "Generates a new invite"
+      description: "This endpoint will generate an invite and store it in the DB"
+      security:
+        - Authorization: []
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "body"
+        in: "body"
+        required: true
+        schema:
+          $ref: '#/definitions/GenerateInviteRequest'
+      responses:
+        200:
+          description: "Invite generated"
+          schema: 
+            $ref: "#/definitions/InviteResponse"
+        400:
+          description: "Invalid request parameters"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        403:
+          description: "Invalid JWT Token"
+        500:
+          description: "Failed to generate invite"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+securityDefinitions:
+  Authorization:
+    description: "Valid JWT token is required for this endpoint"
+    type: "apiKey"
+    name: "Authorization Bearer"
+    in: "header"
+definitions:
+  GenerateInviteRequest:
+    type: "object"
+    required:
+    - "userId"
+    - "clientId"
+    - "appKey"
+    - "appUrl"
+    properties:
+      userId:
+        type: "string"
+        description: "The user id that requested the invite to be generated"
+        example: "aleks@pulseid.com"
+      clientId:
+        type: "integer"
+        description: "The client id for which this invite is generated"
+        example: 50
+      appKey:
+        type: "string"
+        description: "App key used by the SDK"
+        example: "4d4f434841-373836313836303830-3430-616e64726f6964"
+      appUrl:
+        type: "string"
+        description: "Environment url used by the SDK"
+        example: "https://test.pulseid.com/2.1"
+  InviteResponse:
+    type: "object"
+    required:
+    - "inviteToken"
+    - "validTo"
+    properties:
+      inviteToken:
+        type: "string"
+        description: "Invite key used by clients to login to the prospects app"
+        example: "4d4f434841"
+      validTo:
+        type: "string"
+        description: "Timestamp till this invite is valid"
+        example: "12/12/2018 23:15:10"
+  SDKInitData: 
+    type: "object"
+    required:
+    - "appKey"
+    - "appUrl"
+    properties:
+      appKey:
+        type: "string"
+        description: "App key used by the SDK"
+        example: "4d4f434841-373836313836303830-3430-616e64726f6964"
+      appUrl:
+        type: "string"
+        description: "Environment url used by the SDK"
+        example: "https://test.pulseid.com/2.1"
+  Geofence: 
+    type: "object"
+    required:
+    - "latitude"
+    - "longitude"
+    - "radius"
+    - "locationName"
+    properties:
+      latitude:
+        type: "number"
+        description: "Latitude of geofence"
+        example: -37.819949466374
+      longitude:
+        type: "number"
+        description: "Longitude of geofence"
+        example: 144.90083277444
+      radius:
+        type: "number"
+        description: "Radius in meters for geofence"
+        example: 100
+      locationName:
+        type: "string"
+        description: "The name of the location"
+        example: "Bank of America"
+  ApiErrorResponse:
+    type: "object"
+    properties:
+      error_code:
+        type: "number"
+        description: "Error code useful for debugging"
+        example: "-101"
+      error_message:
+        type: "string"
+        description: "Error message"
+        example: "Failed to load data"
+      trace_id:
+        type: "string"
+        description: "Randomly generated ID for this request, used for support and debugging"
+        example: "b30d919c-6491-491e-a5e4-6222ef0b32e4"

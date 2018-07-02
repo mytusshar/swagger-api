@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link rel="stylesheet" href="admin.css">
+        <link rel="stylesheet" href="modal.css">
+        <script src="admin.js"></script>
+    </head>
+
+    <body>
+
+        <div>                
+            <div class="navbar">
+                <a href="#home" id="home">Home</a>
+                <a href="#developer-tools" id="developer-tools">Admin Tools</a>
+                <a href="#logout" id="button-logout">Logout</a>
+                <div class="logo"> Admin Panel </div>
+            </div>
+
+            <div id="main-home">
+                <p id="welcome-message">Welcome! You have successfully signed in as Admin...</p>
+                <p>Open Admin Tools for more operations....</p>                
+            </div>
+        
+            <div id="dev-tools">
+                <div class="column1">
+                    <h2>Active Tokens</h2>
+                    <div class="block">
+                        <!-- <p id="active-tokens">Data</p> -->
+                        <table id="active-table">
+                            <tr>
+                                <th>Sr. No.</th>
+                                <th>Token</th>
+                                <th>Exp. Date (YY/MM/DD)</th>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <h2>Expired Tokens</h2>
+                    <div class="block">
+                        <!-- <p id="expired-tokens">Data</p> -->
+                        <table id="inactive-table">
+                            <tr>
+                                <th>Sr. No.</th>
+                                <th>Token</th>
+                                <th>Exp. Date (YY/MM/DD)</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="column2">
+                    
+                    <div class="block">
+                        <p id="app-id">APP-ID:</p>
+                        <p id="app-url">APP-URL:</p>
+                        <!-- <br> -->
+                        <input class="input" id="client-id" placeholder="111 (any numeric value)">
+                        <span id="error-client-id" class="error">error</span><br>
+                        <input class="input" id="user-id" placeholder="example@pulseid.com">
+                        <span id="error-user-id" class="error">error</span><br>
+                        <button class="button" id="button-createToken"> Create Invite Token </button><br>
+                        <input class="input" id="created-token" disabled placeholder="invitation token will appear here">
+                        <!-- <textarea readonly class="block" id="created-token"></textarea> -->
+                    </div>
+
+                    <div class="block">                        
+                        <!-- <br> -->
+                        <input class="input" id="input-token" placeholder="Enter invitation token">
+                        <span id="error-input" class="error">error</span><br>
+                        <button class="button" id="button-invalidateToken"> Invalidate Token </button>                        
+                    </div>
+
+                    <div class="block">
+                        <button class="button" onclick="getUnprotected()" id="button-unprotected"> Unprotected </button>
+                        <button class="button" onclick="getProtected()" id="button-protected"> Protected </button>
+                        <button class="button" onclick="getProtected2()" id="button-protected2"> Protected2 </button>
+                        <textarea readonly id="text-area"></textarea>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- alert modal -->
+        <div id="modal-container">
+            <div class="flex">
+                <div id="modal">
+                    <div id="close">
+                        <span>&#43;</span>
+                    </div>
+                    <div class="content">
+                        <h2 id="alert-refresh">Alert</h2>
+                        <p id="alert-text"></p>
+                    </div>
+                    <button id="button-loginPage">Go to Login Page</button>
+                </div>
+            </div>
+        </div>
+        
+    </body>  
+
+</html> 
