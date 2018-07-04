@@ -43,11 +43,11 @@ exports.createTable = function() {
 	}
 
 	function errorCB(err) {
-		console.log("***** ERROR: REJECTED initInMemoryTokens: ", err);
+		console.log("***** ERROR: REJECTED createTable: ", err);
 	}
 }
 
-exports.updateInMemoryTokens = function(data, operation) {
+exports.updateInMemoryTokens = function(data) {
 	inMemoryTokens[data.token] = data.expiry_date;
 	var keys = Object.keys(inMemoryTokens);
 	console.log("InmemorySIZE: ", keys.length);
