@@ -9,7 +9,7 @@ exports.DB_PASSWORD = "root";
 exports.DB_TABLE_NAME = "tokens";
 exports.DB_DATABASE_NAME = "catalyst";
 
-/******** DON'T CHNAGE THE FOLLOWING PARAMETERES  *******/
+/******** DON'T CHANGE THE FOLLOWING PARAMETERES  *******/
 
 /** API credentials */
 exports.APP_ID = "4d4f434841-373836313836303830-3430-616e64726f6964";
