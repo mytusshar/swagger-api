@@ -17,10 +17,6 @@ var alertText;
 var homePage;
 var devToolsPage;
 
-const URL_GET_ALL_TOKEN = "http://localhost:3000/prospects/invite/getall";
-const URL_CREATE_INVITE_TOKEN = "http://localhost:3000/prospects/invite/generate";
-const URL_INVALIDATE_TOKEN = "http://localhost:3000/prospects/invite/disable";
-
 window.onload = function() {
 
     buttonCreateToken = document.getElementById("button-createToken");    
@@ -51,7 +47,6 @@ window.onload = function() {
     if(!sessionStorage.getItem("token")) {
         modalContainer.style.display = "block";
         modal.style.display = "block";
-        // closeButton.style.display = "none";
         buttonLoginPage.style.display = "block";
         alertText.innerHTML = "You are not logged in. Please login first.";
     }

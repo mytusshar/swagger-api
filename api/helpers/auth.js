@@ -1,8 +1,13 @@
+/***
+ * author: Tushar Bochare
+ * Email: mytusshar@gmail.com
+ */
+
 "use strict";
 
 var jwt = require("jsonwebtoken");
+var constants = require("../config/constants.js");
 var sharedSecret = "secret";
-var issuer = "www.pulseid.com";
 
 exports.verifyToken = function(req, authOrSecDef, token, callback) {
     var currentScopes = req.swagger.operation["x-security-scopes"];
@@ -19,7 +24,7 @@ exports.verifyToken = function(req, authOrSecDef, token, callback) {
                 // check if the role is valid for this endpoint
                 var roleMatch = currentScopes.indexOf(decodedToken.role) !== -1;
                 // check if the issuer matches
-                var issuerMatch = decodedToken.iss == issuer;
+                var issuerMatch = decodedToken.iss == constants.ISSUER;
 
                 if (roleMatch && issuerMatch) {
                     req.auth = decodedToken;
@@ -39,7 +44,7 @@ exports.verifyToken = function(req, authOrSecDef, token, callback) {
 exports.issueToken = function(username, role) {
     var token = jwt.sign({
         sub: username,
-        iss: issuer,
+        iss: constants.ISSUER,
         role: role
     }, sharedSecret);
     return token;

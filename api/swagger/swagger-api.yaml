@@ -3,7 +3,7 @@ swagger: "2.0"
 info:
   description: Self Service Mobile Application API
   version: "1.0"
-  title: Pulse iD - Self Service Mobile Application API
+  title: My Domain Name - Self Service Mobile Application API
   contact: {}
 host: localhost:3000
 basePath: /prospects
@@ -189,7 +189,7 @@ definitions:
     properties:
       userId:
         type: string
-        example: aleks@pulseid.com
+        example: aleks@domain.com
         description: The user id that requested the invite to be generated
       clientId:
         type: integer
@@ -201,13 +201,13 @@ definitions:
         description: App key used by the SDK
       appUrl:
         type: string
-        example: https://test.pulseid.com/2.1
+        example: https://test.domain.com/2.1
         description: Environment url used by the SDK
     example:
       clientId: 50
       appKey: 4d4f434841-373836313836303830-3430-616e64726f6964
-      appUrl: https://test.pulseid.com/2.1
-      userId: aleks@pulseid.com
+      appUrl: https://test.domain.com/2.1
+      userId: aleks@domain.com
   LoginAuthentication:
     type: object
     properties:
@@ -284,11 +284,11 @@ definitions:
         description: App key used by the SDK
       appUrl:
         type: string
-        example: https://test.pulseid.com/2.1
+        example: https://test.domain.com/2.1
         description: Environment url used by the SDK
     example:
       appKey: 4d4f434841-373836313836303830-3430-616e64726f6964
-      appUrl: https://test.pulseid.com/2.1
+      appUrl: https://test.domain.com/2.1
   ApiErrorResponse:
     type: object
     properties:

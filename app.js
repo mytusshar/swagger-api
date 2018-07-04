@@ -1,3 +1,7 @@
+/***
+ * author: Tushar Bochare
+ * Email: mytusshar@gmail.com
+ */
 
 "use strict";
 
@@ -7,7 +11,7 @@ var YAML = require("yamljs");
 var cors = require('cors');
 var auth = require("./api/helpers/auth");
 var controller = require("./api/controllers/main-controller");
-var swaggerConfig = YAML.load("./api/swagger/swagger2.yaml");
+var swaggerConfig = YAML.load("./api/swagger/swagger-api.yaml");
 
 swaggerTools.initializeMiddleware(swaggerConfig, function(middleware) {
 	//Serves the Swagger UI on /docs
@@ -29,6 +33,6 @@ swaggerTools.initializeMiddleware(swaggerConfig, function(middleware) {
 
 	app.listen(3000, function() {
 		console.log("Started server on port 3000");
-		controller.initInMemoryTokens();
+		controller.initDatabaseIfNotAlready();
 	});
 });

@@ -1,19 +1,51 @@
 
+/***
+ * author: Tushar Bochare
+ * Email: mytusshar@gmail.com
+ */
+
 "use strict";
 
 var randtoken = require('rand-token');
 var auth = require("../helpers/auth");
 var db = require("../db/database.js");
+var constants = require("../config/constants.js");
 var controller = require("./main-controller.js");
 
-const APP_ID = "4d4f434841-373836313836303830-3430-616e64726f6964";
-const APP_URL = "https://test.pulseid.com/2.1";
-const INVITE_GENERATE = 0;
-const INVITE_DISABLE = 1;
-const INVITE_VALIDATE = 2;
-const INVITE_GET_ALL = 4;
-
 var inMemoryTokens;
+
+exports.initDatabaseIfNotAlready = function() {
+	console.log("*********** initDatabaseIfNotAlready ***********");
+	var sql = controller.generateSQL(constants.CREATE_DB);
+	var promise = db.dbOperation(sql);
+	promise.then(successCB, errorCB);
+
+	function successCB(result) {
+		console.log("***** RESOLVED initDatabaseIfNotAlready:", result);
+		console.log("*** Database created success ***");
+		controller.createTable();
+	}
+
+	function errorCB(err) {
+		console.log("***** ERROR: REJECTED initDatabaseIfNotAlready: ", err);
+	}
+}
+
+exports.createTable = function() {
+	console.log("*********** createTable ***********");
+	var sql = controller.generateSQL(constants.CREATE_TABLE);
+	var promise = db.dbOperation(sql);
+	promise.then(successCB, errorCB);
+
+	function successCB(result) {
+		console.log("***** RESOLVED createTable:", result);
+		console.log("*** Table created success ***");
+	}
+
+	function errorCB(err) {
+		console.log("***** ERROR: REJECTED initInMemoryTokens: ", err);
+	}
+}
 
 exports.updateInMemoryTokens = function(data, operation) {
 	inMemoryTokens[data.token] = data.expiry_date;
@@ -23,17 +55,21 @@ exports.updateInMemoryTokens = function(data, operation) {
 
 exports.initInMemoryTokens = function() {
 	console.log("*********** initInMemoryTokens ***********");
-	var sql = controller.generateSQL(INVITE_GET_ALL);
+	var sql = controller.generateSQL(constants.INVITE_GET_ALL);
 	var promise = db.dbOperation(sql);
-	promise.then(function(arr) {
+	promise.then(successCB, errorCB);
+
+	function successCB(arr) {
 		console.log("***** RESOLVED initInMemoryTokens: ");
 		inMemoryTokens = arr.reduce(function(map, obj) {
 			map[obj.token] = obj.expiry_date;
 			return map;
 		}, {});
-	}, function(err) {
+	}
+
+	function errorCB(err) {
 		console.log("***** ERROR: REJECTED initInMemoryTokens: ", err);
-	});
+	}
 }
 
 exports.loginPost = function(args, res, next) {
@@ -48,8 +84,8 @@ exports.loginPost = function(args, res, next) {
 		var tokenString = auth.issueToken(username, role);
 		response = {
 			token: tokenString,
-			appID: APP_ID,
-			appURL: APP_URL
+			appID: constants.APP_ID,
+			appURL: constants.APP_URL
 		};
 		httpCode = 200;
 	} else {
@@ -66,12 +102,14 @@ exports.createTokenAdmin = function(args, res, next) {
 	var userId = args.body.userId;
 	var appUrl = args.body.appUrl;
 	var tokenData = controller.createInviteToken();
-	var sql = controller.generateSQL(INVITE_GENERATE, tokenData);
+	var sql = controller.generateSQL(constants.INVITE_GENERATE, tokenData);
 
 	console.log("body param: ", args.body);
 	var response;
 	var promise = db.dbOperation(sql);
-	promise.then(function(data) {
+	promise.then(successCB, errorCB);
+
+	function successCB(data) {
 		console.log("***** RESOLVED dbOperation: ", data);
 		if(data.affectedRows > 0) {
 			response = {newInviteToken: tokenData.token};
@@ -79,11 +117,13 @@ exports.createTokenAdmin = function(args, res, next) {
 			response = {newInviteToken: "invite token generation failed!"};
 		}
 		controller.sendResponse(res, 200, response);
-	}, function(err) {
+	}
+
+	function errorCB(err) {
 		console.log("***** REJECTED dbOperation: ", err);
 		response = {message: "Internal Server error!"};
 		controller.sendResponse(res, 500, response);
-	});
+	}	
 };
 
 exports.invalidateInviteToken = function(args, res, next) {
@@ -96,10 +136,12 @@ exports.invalidateInviteToken = function(args, res, next) {
 		token: token,
 		exp_date: date
 	}
-	var sql = controller.generateSQL(INVITE_DISABLE, data);
+	var sql = controller.generateSQL(constants.INVITE_DISABLE, data);
 	var response;
 	var promise = db.dbOperation(sql);
-	promise.then(function(data) {
+	promise.then(successCB, errorCB);
+
+	function successCB(data) {
 		console.log("***** RESOLVED invalidateInviteToken: ", data);
 		var result = data.affectedRows > 0 ? "successfully invalidated" : "no such token found";
 		console.log("****** " + result + " ******");
@@ -109,27 +151,33 @@ exports.invalidateInviteToken = function(args, res, next) {
 			expiry_date: date
 		};
 		controller.sendResponse(res, 200, response);
-	}, function(err) {
+	}
+
+	function errorCB(err) {
 		console.log("***** ERROR: REJECTED invalidateInviteToken: ", err);
 		response = {message: "Internal Server error!"};
 		controller.sendResponse(res, 500, response);
-	});
+	}
 };
 
 exports.getAllTokensAdmin = function(args, res, next) {
 	console.log("*****getAllTokensAdmin*****");
 	var response;
-	var sql = controller.generateSQL(INVITE_GET_ALL);
+	var sql = controller.generateSQL(constants.INVITE_GET_ALL);
 	var promise = db.dbOperation(sql);
-	promise.then(function(data) {
-		console.log("***** RESOLVED getAllTokens: ");
+	promise.then(successCB, errorCB);
+
+	function successCB(data) {
+		console.log("***** RESOLVED getAllTokens: ", data);
 		response = {allTokens: data};
 		controller.sendResponse(res, 200, response);
-	}, function(err) {
+	}
+
+	function errorCB(err) {
 		console.log("***** REJECTED getAllTokens: ", err);
 		response = {message: "Internal Server error!"};
 		controller.sendResponse(res, 500, response);
-	});
+	}
 };
 
 exports.validateInviteToken = function(args, res, next) {
@@ -137,17 +185,13 @@ exports.validateInviteToken = function(args, res, next) {
 	var token = args.body.inviteToken;
 	console.log("token: ", token);
 
-	var sql = controller.generateSQL(INVITE_VALIDATE, token);
+	var sql = controller.generateSQL(constants.INVITE_VALIDATE, token);
 	var response;
 	var httpCode;
 	var promise = db.dbOperation(sql);
-	promise.then(resolveCB, function(err) {
-		console.log("***** ERROR: REJECTED validateInviteTokenDB: ", err);
-		response = {message: "Internal Server error!"};
-		controller.sendResponse(res, 500, response);
-	});
+	promise.then(successCB, errorCB);
 
-	function resolveCB(data) {
+	function successCB(data) {
 		if(data.length > 0) {
 			var expDate = data[0].expiry_date;
 			var curDate = new Date();
@@ -155,8 +199,8 @@ exports.validateInviteToken = function(args, res, next) {
 			if(isValidToken) {
 				var tokenString = auth.issueToken("username", "user");
 				var msgString = "You are successfully logged in! Check the JWT Token in Console,"
-								+ " use it for subsuquent operations on Pulse-ID platform.";
-				response = { appId: APP_ID, appUrl: APP_URL, message: msgString, 
+								+ " use it for subsuquent operations on Domain-Name platform.";
+				response = { appId: constants.APP_ID, appUrl: constants.APP_URL, message: msgString, 
 					jwtToken: tokenString 
 				};
 				httpCode = 200;
@@ -173,6 +217,12 @@ exports.validateInviteToken = function(args, res, next) {
 		}
 		controller.sendResponse(res, httpCode, response);
 	}
+
+	function errorCB(err) {
+		console.log("***** ERROR: REJECTED validateInviteTokenDB: ", err);
+		response = {message: "Internal Server error!"};
+		controller.sendResponse(res, 500, response);
+	}
 };
 
 exports.makeTokenInvalid = function(token) {
@@ -182,29 +232,40 @@ exports.makeTokenInvalid = function(token) {
 		token: token,
 		exp_date: date
 	}
-	var sql = controller.generateSQL(INVITE_DISABLE, data);
+	var sql = controller.generateSQL(constants.INVITE_DISABLE, data);
 	var promise = db.dbOperation(sql);
-	promise.then(function(result) {
-			console.log("***** RESOLVED makeTokenInvalid: ", result);
-	}, function(err) {
-			console.log("***** ERROR: REJECTED makeTokenInvalid: ", err);
-	});
+	promise.then(successCB, errorCB);
+
+	function successCB(result) {
+		console.log("***** RESOLVED makeTokenInvalid: ", result);
+	}
+
+	function errorCB(err) {
+		console.log("***** ERROR: REJECTED makeTokenInvalid: ", err);
+	}
 }
 
 exports.generateSQL = function(code, data) {
+	var tableName = constants.DB_DATABASE_NAME + "." + constants.DB_TABLE_NAME;
 	switch(code){
-		case INVITE_GENERATE:
-			return "INSERT INTO tokens (token, expiry_date)" 
+		case constants.INVITE_GENERATE:
+			return "INSERT INTO " + tableName + " (token, expiry_date)" 
              	 + " VALUES ('" + data.token + "', '" + data.exp_date + "')";
 		break;
-		case INVITE_DISABLE:
-			return "UPDATE tokens SET expiry_date = '" + data.exp_date + "' WHERE token = '" + data.token + "'";
+		case constants.INVITE_DISABLE:
+			return "UPDATE " + tableName + " SET expiry_date = '" + data.exp_date + "' WHERE token = '" + data.token + "'";
 		break;
-		case INVITE_VALIDATE:
-			return "SELECT expiry_date FROM tokens where token='" + data + "'";
+		case constants.INVITE_VALIDATE:
+			return "SELECT expiry_date FROM " + tableName + " where token='" + data + "'";
 		break;
-		case INVITE_GET_ALL:
-			return "SELECT * FROM tokens";
+		case constants.INVITE_GET_ALL:
+			return "SELECT * FROM " + tableName;
+		break;
+		case constants.CREATE_DB:
+			return "CREATE DATABASE " + constants.DB_DATABASE_NAME;
+		break;
+		case constants.CREATE_TABLE:
+			return "CREATE TABLE " + tableName + " (token varchar(12), expiry_date varchar(100))";
 		break;
 		default: console.log("invalid request type");
 	}

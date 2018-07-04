@@ -37,24 +37,31 @@ window.onload = function() {
 function displayAdminLogin() {
     userBlock.style.display = "none";
     adminBlock.style.display = "block";
+    // buttonOpenUserLogin.style.border = "none";
+    buttonOpenUserLogin.style.backgroundColor = "inherit";
+    buttonOpenUserLogin.style.color = "rgb(0, 170, 148)";
+    buttonOpenAdminLogin.style.backgroundColor = "rgb(0, 170, 148)";
+    buttonOpenAdminLogin.style.color = "white";
 }
 function displayUserLogin() {
     userBlock.style.display = "block";
     adminBlock.style.display = "none";
+    buttonOpenAdminLogin.style.backgroundColor = "inherit";
+    buttonOpenAdminLogin.style.color = "rgb(0, 170, 148)";
+    buttonOpenUserLogin.style.backgroundColor = "rgb(0, 170, 148)";
+    buttonOpenUserLogin.style.color = "white";
 }
 
 function adminLoginFunction() {
     var userCreden = getAdminFormData();
     if(userCreden) {
         console.log(userCreden);
-        // serverInteraction(token);
         getJWTToken(userCreden);
     }
 }
 
 /** admin dashboard login function **/
 function getJWTToken(data) {
-    const URL_LOGIN_ADMIN = "http://localhost:3000/prospects/login/admin";
     var bodyJSON = "username=" + data.username + "&password=" + data.password;
     var headerJSON = {
         "Content-type": "application/x-www-form-urlencoded"
@@ -84,7 +91,6 @@ function userLoginFunction() {
     var token = getUserFormData();
     if(token) {
         console.log("userLoginFunction function");
-        const URL_LOGIN_WITH_INVITE_TOKEN = "http://localhost:3000/prospects/invite/validate";
         if(token) {
             var bodyJSON = "inviteToken=" + token;
             var headerJSON = {
