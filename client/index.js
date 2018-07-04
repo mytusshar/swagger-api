@@ -67,11 +67,13 @@ function getJWTToken(data) {
     .then(response => response.json())
     .then((data) => {
         console.log("recievedData ", data);
-        if(data) {
+        if(data.token) {
             sessionStorage.setItem('token', data.token);
             sessionStorage.setItem('appID', data.appID);
             sessionStorage.setItem('appURL', data.appURL);
             window.open("admin.html", "_self");
+        } else {
+            openModal(data.message);
         }
     })
     .catch((err) => console.log(err))

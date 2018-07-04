@@ -17,6 +17,10 @@ var alertText;
 var homePage;
 var devToolsPage;
 
+const URL_GET_ALL_TOKEN = "http://localhost:3000/prospects/invite/getall";
+const URL_CREATE_INVITE_TOKEN = "http://localhost:3000/prospects/invite/generate";
+const URL_INVALIDATE_TOKEN = "http://localhost:3000/prospects/invite/disable";
+
 window.onload = function() {
 
     buttonCreateToken = document.getElementById("button-createToken");    
@@ -47,7 +51,7 @@ window.onload = function() {
     if(!sessionStorage.getItem("token")) {
         modalContainer.style.display = "block";
         modal.style.display = "block";
-        closeButton.style.display = "none";
+        // closeButton.style.display = "none";
         buttonLoginPage.style.display = "block";
         alertText.innerHTML = "You are not logged in. Please login first.";
     }
@@ -103,7 +107,7 @@ function getCreateTokenParam() {
         errorClientID.style.display = "none";
         return {
             appId: sessionStorage.getItem('appID'),
-            appUrl: sessionStorage.getItem('appUrl'),
+            appUrl: sessionStorage.getItem('appURL'),
             clientId: clientID,
             userId: userID
         };
@@ -115,11 +119,9 @@ function createInviteToken() {
     console.log("createInviteToken function");
     var sessionToken = getSessionToken();
     var bodyJSON = getCreateTokenParam();
-    // var bodyJSON = "token=" + token;
     if(!bodyJSON) {
         return;
     }
-    const URL_CREATE_INVITE_TOKEN = "http://localhost:3000/prospects/invite/generate";
     var headerJSON = {
         "Content-type": "application/x-www-form-urlencoded",
         "Authorization": "Bearer " + sessionToken
@@ -140,9 +142,7 @@ function createInviteToken() {
 }
 
 function getAllTokens() {
-    console.log("getAllTokens function");
     var sessionToken = getSessionToken();
-    const URL_GET_ALL_TOKEN = "http://localhost:3000/prospects/invite/getall";
     var headerJSON = {
         "Content-type": "application/x-www-form-urlencoded",
         "Authorization": "Bearer " + sessionToken
@@ -153,48 +153,13 @@ function getAllTokens() {
     })
     .then(response => response.json())
     .then((data) => {
-        console.log("getAllTokens ", data.data);
+        // console.log("getAllTokens ", data.data);
         // displayInTextArea(data);
         sortActiveAndInactiveTokens(data.allTokens);
         // sortActiveAndInactiveTokens(data.data);
     })
     .catch((err) => console.log(err))
 }
-
-
-// function sortActiveAndInactiveTokens(data) {
-//     var activeTable = document.getElementById("active-table");
-//     var inactiveTable = document.getElementById("inactive-table");
-    
-//     var keys = Object.keys(data);
-//     var length = keys.length;
-//     console.log("******* total toakens: ", length);
-
-//     deleteRows(activeTable);
-//     deleteRows(inactiveTable);
-
-//     var countActive = 0;
-//     var countInactive = 0;
-//     for(var i=0; i<length; i++) {
-//         var expDate = Date.parse(data[keys[i]]);
-//         var curDate = new Date();
-//         var row;
-//         if(expDate < curDate) {
-//             row = inactiveTable.insertRow();
-//             count = ++countInactive;
-//         } else {
-//             row = activeTable.insertRow();
-//             count = ++countActive;
-//         }
-//         var cell0 = row.insertCell(0);
-//         var cell1 = row.insertCell(1);
-//         var cell2 = row.insertCell(2);
-//         var temp = new Date(expDate);
-//         cell0.innerHTML = count;
-//         cell1.innerHTML = keys[i];
-//         cell2.innerHTML = temp.getFullYear() + '-' + (temp.getMonth()+1) + '-' + temp.getDate();
-//     }
-// }
 
 function sortActiveAndInactiveTokens(data) {
     var activeTable = document.getElementById("active-table");
@@ -239,7 +204,6 @@ function invalidateToken() {
     console.log("invalidateToken function");
     var token = getToken();
     var sessionToken = getSessionToken();
-    const URL_INVALIDATE_TOKEN = "http://localhost:3000/prospects/invite/disable";
     if(token) {
         var bodyJSON = "inviteToken=" + token;
         var headerJSON = {
@@ -299,52 +263,37 @@ function logoutUser() {
     window.open("index.html", "_self");
 }
 
-function getUnprotected() {
-    const URL_UNPROTECTED = "http://localhost:3000/api/unprotected";
-    fetch(URL_UNPROTECTED)
-    .then(response => response.json())
-    .then((data) => {
-        console.log("getUnprotected ", data);
-        displayInTextArea(data);
-    })
-    .catch((err) => console.log(err))
-}
 
-function getProtected() {
-    const URL_PROTECTED = "http://localhost:3000/api/protected";
-    var sessionToken = getSessionToken();
-    var headerJSON = {
-        "Content-type": "application/x-www-form-urlencoded",
-        "Authorization": "Bearer " + sessionToken
-    };
-    fetch(URL_PROTECTED, {
-        method: 'GET',
-        headers: headerJSON
-    })
-    .then(response => response.json())
-    .then((data) => {
-        console.log("getProtected ", data);
-        displayInTextArea(data);
-    })
-    .catch((err) => console.log(err))
-}
+// function sortActiveAndInactiveTokens(data) {
+//     var activeTable = document.getElementById("active-table");
+//     var inactiveTable = document.getElementById("inactive-table");
+    
+//     var keys = Object.keys(data);
+//     var length = keys.length;
+//     console.log("******* total toakens: ", length);
 
-function getProtected2() {
-    var sessionToken = getSessionToken();
-    const URL_PROTECTED2 = "http://localhost:3000/api/protected2";
-    var headerJSON = {
-        "Content-type": "application/x-www-form-urlencoded",
-        "Authorization": "Bearer " + sessionToken
-    };
-    fetch(URL_PROTECTED2, {
-        method: 'GET',
-        headers: headerJSON
-    })
-    .then(response => response.json())
-    .then((data) => {
-        console.log("getProtected ", data);
-        displayInTextArea(data);
-    })
-    .catch((err) => console.log(err))
-}
+//     deleteRows(activeTable);
+//     deleteRows(inactiveTable);
 
+//     var countActive = 0;
+//     var countInactive = 0;
+//     for(var i=0; i<length; i++) {
+//         var expDate = Date.parse(data[keys[i]]);
+//         var curDate = new Date();
+//         var row;
+//         if(expDate < curDate) {
+//             row = inactiveTable.insertRow();
+//             count = ++countInactive;
+//         } else {
+//             row = activeTable.insertRow();
+//             count = ++countActive;
+//         }
+//         var cell0 = row.insertCell(0);
+//         var cell1 = row.insertCell(1);
+//         var cell2 = row.insertCell(2);
+//         var temp = new Date(expDate);
+//         cell0.innerHTML = count;
+//         cell1.innerHTML = keys[i];
+//         cell2.innerHTML = temp.getFullYear() + '-' + (temp.getMonth()+1) + '-' + temp.getDate();
+//     }
+// }
